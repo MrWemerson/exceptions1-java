@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import model.exceptions.DomainException;
+
 public class Reservation {
 	
 	private Integer roomNumber;
@@ -12,7 +14,10 @@ public class Reservation {
 	
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	
-	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) {
+	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) throws DomainException {
+		if(!checkOut.after(checkIn)) {
+			throw new DomainException("Data de saída deve ser posterior a data de entrada");
+		}
 		this.roomNumber = roomNumber;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
@@ -42,17 +47,17 @@ public class Reservation {
 		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 	}
 	
-	public String updateDates(Date checkIn, Date checkOut) {		
+	//esse método agora lança uma exceção caso aconteça algum erro
+	public void updateDates(Date checkIn, Date checkOut) throws DomainException {		
 		Date now = new Date();
 		if(checkIn.before(now) || checkOut.before(now)) {
-			return "As datas da reserva devem ser atualizadas para datas futuras";
+			throw new DomainException("As datas da reserva devem ser atualizadas para datas futuras");
 		} 
 		if(!checkOut.after(checkIn)) {
-			return "Data de saída deve ser posterior a data de entrada";
+			throw new DomainException("Data de saída deve ser posterior a data de entrada");
 		}
 		this.checkIn = checkIn;
-		this.checkOut = checkOut;
-		return null;//se retornar nulo é porque não deu nenhum erro
+		this.checkOut = checkOut;		
 	}
 	
 	@Override	
